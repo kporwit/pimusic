@@ -37,13 +37,13 @@ while getopts 'P:p:V:h' flag; do
 done
 
 if [ -z "${path_to_music}" ]; then
-  printf "ERROR: Your music path was not passed. It must be passed as an -P flag (e.g: -P </path/to/your/music>).\n"
+  printf "ERROR: music path was not given. It must be passed as an -P flag (e.g: -P </path/to/your/music>).\n"
   exit 21
 fi
 
 
 if [[ ! (-e "${path_to_music}" || -d "${path_to_music}" || -r "${path_to_music}") ]]; then
-  printf "ERROR: Your music path: %s either does not exists, is not a directory or is not readable by %s user.\n" "${path_to_music}" "${USER}"
+  printf "ERROR: music path: %s either does not exists, is not a directory or is not readable by %s user.\n" "${path_to_music}" "${USER}"
   exit 22
 fi
 
@@ -52,10 +52,11 @@ if ! echo "${publish_port}" | grep -E "[0-9]{4,}" > /dev/null; then
   exit 2
 fi
 
-printf "Running pimusic (version: %s) on port %s with music path %s\n" "${version}" "${publish_port}" "${path_to_music}"
+printf "Starting up pimusic container (version: %s) on port %s with music path %s\n" "${version}" "${publish_port}" "${path_to_music}"
 docker run -d --name pimusic \
   -e PUBLISH_PORT="${publish_port}" -p "${publish_port}:${publish_port}" \
   -v "${path_to_music}:/home/pimusic/music" \
+  --restart=unless-stopped \
   --mount source=pimusic_share_vol,target=/home/pimusic/.local \
   --mount source=pimusic_config_vol,target=/home/pimusic/.config \
   "pimusic:${version}"
