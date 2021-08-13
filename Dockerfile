@@ -16,4 +16,8 @@ RUN unzip devel.zip && rm devel.zip
 RUN mkdir -p music; mkdir -p .local; mkdir -p .config
 
 WORKDIR ${PIHOMEDIR}/cherrymusic-devel/
-ENTRYPOINT python3 cherrymusic --setup --port ${PUBLISH_PORT}
+ENTRYPOINT python3 cherrymusic --conf \
+  media.basedir=/home/pimusic/music \
+  server.port=${PUBLISH_PORT} \
+  server.localhost_only=False \
+  server.permit_remote_admin_login=True

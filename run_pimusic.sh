@@ -59,4 +59,4 @@ docker run -d --name pimusic \
   --restart=unless-stopped \
   --mount source=pimusic_share_vol,target=/home/pimusic/.local \
   --mount source=pimusic_config_vol,target=/home/pimusic/.config \
-  "pimusic:${version}"
+  "kporwit/pimusic:${version}"
