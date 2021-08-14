@@ -1,3 +1,18 @@
+#Download and compile imagemagick from source
+FROM arm32v5/debian AS imagemagick_builder
+RUN apt-get update -y && apt-get upgrade -y
+RUN apt-get install -y wget tar build-essential
+RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz
+RUN tar xzfv ImageMagick.tar.gz
+RUN mkdir imagemagick
+WORKDIR ImageMagick-7.1.0-4
+RUN ./configure --prefix=../imagemagick
+RUN make
+COPY ../imagemagick /root/
+RUN ls ../imagemagick
+RUN ls /root/
+RUN ls /root/imagemagick/
+
 FROM arm32v5/debian
 
 ENV PUBLISH_PORT=8181
@@ -7,6 +22,8 @@ ARG PIHOMEDIR=/home/${PIUSER}
 RUN apt-get update -y && apt-get upgrade -y
 RUN apt-get install -y wget unzip python3 python3-pip sqlite3
 RUN pip3 install CherryPy
+COPY --from=imagemagick_builder /root/imagemagick /root/imagemagick
+RUN ls /root/imagemagick/
 
 RUN useradd -ms /bin/bash ${PIUSER}
 USER ${PIUSER}
