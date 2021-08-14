@@ -1,0 +1,31 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ feature/* ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - name: Verify run id
+      run : echo Run Id $GITHUB_RUN_ID 
+      
+    - name: Set output
+      id: vars
+      run: |
+        branch_tag=$(echo ${GITHUB_REF#refs/*/} | sed s:/:.:g)
+        echo ::set-output name=short_ref::${branch_tag}
+
+    - name: Check output
+      run: echo ${{ steps.vars.outputs.short_ref }}
+
+    - name: Run Docker build
+      run: docker build . --file Dockerfile --tag pimusic:${{ steps.vars.outputs.short_ref }}
