@@ -2,9 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ feature ]
-  pull_request:
-    branches: [ master ]
+    branches: [ feature/* ]
 
 jobs:
 
@@ -26,3 +24,6 @@ jobs:
 
     - name: Check output
       run: echo ${{ steps.vars.outputs.short_ref }}
+
+    - name: Run Docker build
+      run: docker build . --file Dockerfile --tag pimusic:${{ steps.vars.outputs.short_ref }}
