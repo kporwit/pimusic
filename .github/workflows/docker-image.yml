@@ -11,16 +11,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - name: Checkout repo
       uses: actions/checkout@v2
+
     - name: Verify run id
       run : echo Run Id $GITHUB_RUN_ID 
-    - name: Output the branch name
-      run: echo $(echo $GITHUB_REF | cut -d'/' -f 3)
       
     - name: Set output
       id: vars
-      run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+      run: |
+        branch_tag=$(echo ${GITHUB_REF#refs/*/} | sed s:/:.:g)
+        echo ::set-output name=short_ref::${branch_tag}
 
     - name: Check output
       run: echo ${{ steps.vars.outputs.short_ref }}

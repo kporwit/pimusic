@@ -6,10 +6,8 @@ RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.g
 RUN tar xzfv ImageMagick.tar.gz
 RUN mkdir imagemagick
 WORKDIR ImageMagick-7.1.0-4
-RUN ./configure --prefix=../imagemagick
+RUN ./configure --prefix=/root/imagemagick
 RUN make
-COPY ../imagemagick /root/
-RUN ls ../imagemagick
 RUN ls /root/
 RUN ls /root/imagemagick/
 
