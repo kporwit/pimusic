@@ -2,12 +2,10 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ feature/* ]
+    branches: [ develop/* ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -21,11 +19,13 @@ jobs:
     - name: Set output
       id: vars
       run: |
-        branch_tag=$(echo ${GITHUB_REF#refs/*/} | sed s:/:.:g)
-        echo ::set-output name=short_ref::${branch_tag}
+        version=$(git tag -l | sort -V | tail -1)
+        major=$(echo $version | grep -Eo "v[0-9]{1,}\." | sed -r "s/(v|\.)//g")
+        minor=$(echo $version | grep -Eo "\.[0-9]{1,}\." | sed "s/\./g")
+        minor=$(( minor + 1 ))
+        hotfix=$(echo $version | grep -Eo "\.[0-9]{1,}$" | sed "s/\./g")
+        new_version="v${major}.${minor}.${hotfix}
+        echo ::set-output name=new_version::${new_version}
 
     - name: Check output
-      run: echo ${{ steps.vars.outputs.short_ref }}
-
-    - name: Run Docker build
-      run: docker build . --file Dockerfile --tag pimusic:${{ steps.vars.outputs.short_ref }}
+      run: echo "New version: ${{ steps.vars.outputs.new_version }}"
