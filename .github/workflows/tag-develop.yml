@@ -23,7 +23,7 @@ jobs:
         minor=$(echo $version | grep -Eo "\.[0-9]{1,}\." | sed "s/\.//g")
         minor=$(( minor + 1 ))
         hotfix=$(echo $version | grep -Eo "\.[0-9]{1,}$" | sed "s/\.//g")
-        new_version="v${major}.${minor}.${hotfix}
+        new_version="v${major}.${minor}.${hotfix}"
         echo ::set-output name=new_version::${new_version}
 
     - name: Check output
