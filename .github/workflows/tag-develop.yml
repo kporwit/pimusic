@@ -19,6 +19,7 @@ jobs:
       id: vars
       run: |
         version=$(git tag -l | sort -V | tail -1)
+        echo $version
         major=$(echo $version | grep -Eo "v[0-9]{1,}\." | sed -r "s/(v|\.)//g")
         minor=$(echo $version | grep -Eo "\.[0-9]{1,}\." | sed "s/\.//g")
         minor=$(( minor + 1 ))
