@@ -42,6 +42,7 @@ Moreover, the `SSL_PORT` environment variable needs to be filled with the port Y
 You also need to connect the certificate and private key with the container paths:
 * /home/pimusic/certs/server.crt - for certificate
 * /home/pimusic/certs/server.key - for private key
+
 via volumes. 
 The read permission for others need to be set up for Your certificate and the key. This is necessary as pimusic user need to read them. The last point to make HTTPS support is to expose the `SSL_PORT` to the world.
 
