@@ -2,14 +2,12 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ develop/* ]
+    branches: [ develop* ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-
     - name: Checkout repo
       uses: actions/checkout@v2
 
@@ -28,4 +26,4 @@ jobs:
         echo ::set-output name=new_version::${new_version}
 
     - name: Check output
-      run: echo "New version: ${{ steps.vars.outputs.new_version }}"
+      run: echo New version: ${{ steps.vars.outputs.new_version }}
