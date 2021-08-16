@@ -17,24 +17,25 @@ jobs:
     - name: Verify run id
       run : echo Run Id $GITHUB_RUN_ID 
 
-    - name: check tags
-      run : echo $(git tag -l)
-      shell: bash
-      
     - name: Set output
       id: vars
       run: |
-        git tag -l
         version=$(git tag -l | sort -V | tail -1)
         major=$(echo $version | grep -Eo "v[0-9]{1,}\." | sed -r "s/(v|\.)//g")
         minor=$(echo $version | grep -Eo "\.[0-9]{1,}\." | sed "s/\.//g")
         minor=$(( minor + 1 ))
         hotfix=$(echo $version | grep -Eo "\.[0-9]{1,}$" | sed "s/\.//g")
         new_version="v${major}.${minor}.${hotfix}"
-        echo "::group::Version output"
         echo "Old version: ${version}, new version ${new_version}"
-        echo "::endgroup::"
         echo ::set-output name=new_version::${new_version}
 
     - name: Check output
       run: echo New version ${{ steps.vars.outputs.new_version }}
+    
+    - name: Create new tag
+      uses: tvdias/github-tagger@v0.0.1
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        tag: "${{ steps.vars.outputs.new_version }}"
+
+
