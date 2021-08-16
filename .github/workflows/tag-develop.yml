@@ -1,7 +1,7 @@
 name: Git tag develop
 
 on:
-  push:
+  pull_request:
     branches: 
       - 'develop*'
 
@@ -17,7 +17,7 @@ jobs:
     - name: Verify run id
       run : echo Run Id $GITHUB_RUN_ID 
 
-    - name: Set output
+    - name: Set new tag
       id: vars
       run: |
         version=$(git tag -l | sort -V | tail -1)
@@ -29,7 +29,7 @@ jobs:
         echo "Old version: ${version}, new version ${new_version}"
         echo ::set-output name=new_version::${new_version}
 
-    - name: Check output
+    - name: Check new tag
       run: echo New version ${{ steps.vars.outputs.new_version }}
     
     - name: Create new tag
@@ -37,5 +37,3 @@ jobs:
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         tag: "${{ steps.vars.outputs.new_version }}"
-
-

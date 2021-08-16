@@ -18,7 +18,7 @@ jobs:
     - name: Verify run id
       run : echo Run Id $GITHUB_RUN_ID 
       
-    - name: Set output
+    - name: Set new tag
       id: vars
       run: |
         version=$(git tag -l | sort -V | tail -1)
@@ -29,5 +29,11 @@ jobs:
         new_version="v${major}.${minor}.${hotfix}"
         echo ::set-output name=new_version::${new_version}
 
-    - name: Check output
+    - name: Check new tag
       run: echo New version ${{ steps.vars.outputs.new_version }}
+
+    - name: Create new tag
+      uses: tvdias/github-tagger@v0.0.1
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        tag: "${{ steps.vars.outputs.new_version }}"
