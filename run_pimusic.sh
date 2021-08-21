@@ -27,18 +27,22 @@ ssl_port='8443'
 ssl_enabled='False'
 path_to_certificate=''
 path_to_private_key=''
+access_group_gid='8181'
 
 print_usage() {
   printf "Usage:\n ./run_pimusic.sh -P <The path which contains Your music> -p <Port where the cherrymusic will be published (e.g 8181)> -V <Version of pimusic to run (e.g. v0.0.2)>\n\t -S <enables SSL encryption> -s <Port for the SSL encryption> -c <Path to the SSL certyficate> -k <Path to the private key of the certificate>\n"
 }
 
-readable_by_others() {
+readable_by_group() {
   local passed_file="$1"
-  permissions=$(stat --print=%A $passed_file)
-  ro_byte=$(echo $permissions | cut -c 8)
   if [ -L "$passed_file" ]; then
-    printf "WARNING: the file %s is a symbolic link. Please make sure that the orignal file has read permission for others.\n" "$passed_file"
+    printf "WARNING: the file %s is a symbolic link. Please make sure that the original file belongs to the group with %s GID and has read permission for that group.\n" "$passed_file" "$access_group_gid"
+  elif [ "$(stat --print=%g $passed_file)" != "$access_group_gid" ]; then
+    printf "ERROR: %s does is not own by the group with GID %s.\n" "$passed_file" "$access_group_gid"
+    return 1
   fi
+  permissions=$(stat --print=%A $passed_file)
+  ro_byte=$(echo $permissions | cut -c 5)
   if [ "$ro_byte" = "r" ]; then
     return 0
   else
@@ -80,23 +84,23 @@ fi
 
 if [ "$ssl_enabled" = "True" ]; then
 
-  if ! readable_by_others "${path_to_certificate}"; then
-    printf "ERROR: certificate file is not readable by others.\n"
+  if ! readable_by_group "${path_to_certificate}"; then
+    printf "ERROR: certificate file is not readable by group with %s GID.\n" "$access_group_gid"
     exit 31
   fi
 
-  if [[ ! (-e "${path_to_certificate}" || -d "${path_to_certificate}" || -r "${path_to_certificate}") ]]; then
-    printf "ERROR: certificate path: %s either does not exists, is not a directory or is not readable by %s user.\n" "${path_to_certificate}" "${USER}"
+  if [[ ! (-e "${path_to_certificate}" || -L "${path_to_certificate}") ]]; then
+    printf "ERROR: certificate path: %s does not exists.\n" "${path_to_certificate}"
     exit 31
   fi
 
-  if ! readable_by_others "${path_to_private_key}"; then
-    printf "ERROR: private key file is not readable by others.\n"
+  if ! readable_by_group "${path_to_private_key}"; then
+    printf "ERROR: private key file is not readable by group with %s GID.\n" "$access_group_gid"
     exit 31
   fi
   
-  if [[ ! (-e "${path_to_private_key}" || -d "${path_to_private_key}" || -r "${path_to_private_key}") ]]; then
-    printf "ERROR: private key path: %s either does not exists, is not a directory or is not readable by %s user.\n" "${path_to_private_key}" "${USER}"
+  if [[ ! (-e "${path_to_private_key}" || -L "${path_to_certificate}") ]]; then
+    printf "ERROR: private key path: %s does not exists.\n" "${path_to_private_key}"
     exit 32
   fi
   

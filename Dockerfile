@@ -21,8 +21,8 @@ ARG PIHOMEDIR=/home/${PIUSER}
 RUN apt-get update -y && apt-get upgrade -y
 RUN apt-get install -y wget unzip python3 python3-pip sqlite3
 RUN pip3 install CherryPy
-#Add pimusic user, copy imagemagick and fix the links
-RUN useradd -ms /bin/bash ${PIUSER}
+#Add pimusic user and group, copy imagemagick and fix the links
+RUN addgroup --gid 8181 pimusicgroup && useradd -ms /bin/bash -G pimusicgroup ${PIUSER}
 COPY --from=imagemagick_builder /root/imagemagick ${PIHOMEDIR}/imagemagick
 RUN ldconfig /home/pimusic/imagemagick/lib
 #Work as a pimusic user, add imagemagick path to the PATH env variable
