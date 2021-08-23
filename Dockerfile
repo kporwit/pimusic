@@ -1,11 +1,13 @@
 #Download and compile imagemagick from source
 FROM arm32v5/debian AS imagemagick_builder
-RUN apt-get update -y && apt-get upgrade -y
-RUN apt-get install -y wget tar build-essential
-RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz
-RUN tar xzfv ImageMagick.tar.gz
-RUN mkdir /root/imagemagick
-WORKDIR ImageMagick-7.1.0-4
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y wget tar build-essential
+RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz && \
+    tar xzfv ImageMagick.tar.gz && \
+    rm ImageMagick.tar.gz
+RUN mkdir -p /root/imagemagick
+WORKDIR ImageMagick-7.1.0-5
 RUN ./configure --prefix=/root/imagemagick
 RUN make
 RUN make install
@@ -18,8 +20,9 @@ ENV SSL_PORT=8443
 ARG PIUSER=pimusic
 ARG PIHOMEDIR=/home/${PIUSER}
 #Uppgrade and install dependencies
-RUN apt-get update -y && apt-get upgrade -y
-RUN apt-get install -y wget unzip python3 python3-pip sqlite3
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y wget unzip python3 python3-pip sqlite3
 RUN pip3 install CherryPy
 #Add pimusic user and group, copy imagemagick and fix the links
 RUN addgroup --gid 8181 pimusicgroup && useradd -ms /bin/bash -G pimusicgroup ${PIUSER}
@@ -30,9 +33,10 @@ USER ${PIUSER}
 WORKDIR ${PIHOMEDIR}
 ENV PATH="$PATH:/home/pimusic/imagemagick/bin/"
 #Download cherrymusic
-RUN wget https://github.com/devsnd/cherrymusic/archive/refs/heads/devel.zip
-RUN unzip devel.zip && rm devel.zip
-RUN mkdir -p music; mkdir -p .local; mkdir -p .config; mkdir -p certs
+RUN wget https://github.com/devsnd/cherrymusic/archive/refs/heads/devel.zip && \
+    unzip devel.zip && \
+    rm devel.zip
+RUN mkdir -p music .local .config certs
 #Start cherrymusic with given settings
 WORKDIR ${PIHOMEDIR}/cherrymusic-devel/
 ENTRYPOINT ./cherrymusic --conf \
