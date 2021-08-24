@@ -1,9 +1,14 @@
 name: Build pimusic docker image
 
-on:
+on: 
   push:
-    branches: 
-      - '*'
+    branches:
+      - '!master'
+      - '!main'
+  pull_request:
+    branches:
+      - 'master'
+      - 'main'
 
 jobs:
   build:
@@ -19,3 +24,5 @@ jobs:
 
     - name: Docker build
       run : docker build -f ./Dockerfiles/pimusic_amd64 -t pimusic:${GITHUB_REF##*/}
+
+
