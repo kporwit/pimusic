@@ -1,0 +1,21 @@
+name: Build pimusic docker image
+
+on:
+  push:
+    branches: 
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Verify run id
+      run : echo Run Id $GITHUB_RUN_ID 
+
+    - name: Docker build
+      run : docker build -f ./Dockerfiles/pimusic_amd64 -t pimusic:${GITHUB_REF##*/}
