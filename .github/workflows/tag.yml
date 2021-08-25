@@ -1,7 +1,8 @@
-name: Build pimusic docker image
+name: Tag pimusic version
 
 on:
   pull_request:
+    types: closed
     branches:
       - main
       - master
@@ -18,13 +19,6 @@ jobs:
 
     - name: Verify run id
       run : echo Run Id $GITHUB_RUN_ID 
-
-    - name: Docker build
-      shell: bash
-      env: 
-        DH_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
-      run: |
-        docker build -f ./Dockerfiles/pimusic_amd64.dockerfile -t ${DH_USERNAME}/pimusic:${GITHUB_REF##*/} .
 
     - name: Set new tag
       id: vars
@@ -46,3 +40,9 @@ jobs:
         new_version="v${major}.${minor}.${hotfix}"
         echo "Old version: ${version}, new version ${new_version}"
         echo ::set-output name=new_version::${new_version}
+
+    - name: Create new tag
+      uses: tvdias/github-tagger@v0.0.1
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        tag: "${{ steps.vars.outputs.new_version }}"

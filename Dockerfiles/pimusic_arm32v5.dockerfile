@@ -39,6 +39,7 @@ RUN wget https://github.com/devsnd/cherrymusic/archive/refs/heads/devel.zip && \
 RUN mkdir -p music .local .config certs
 #Start cherrymusic with given settings
 WORKDIR ${PIHOMEDIR}/cherrymusic-devel/
+#ENTRYPOINT ./cherrymusic --setup --port 8181
 ENTRYPOINT ./cherrymusic --conf \
   media.basedir=/home/pimusic/music \
   server.port=${PUBLISH_PORT} \
