@@ -1,13 +1,11 @@
-name: Git tag develop
+name: Tag pimusic version
 
 on:
-  pull_request:
-    branches: 
-      - 'main'
-      - 'master'
-      - 'develop*'
-      - 'hotfix*'
-    types: [closed]
+  push:
+    branches:
+      - main
+      - master
+      - develop
 
 jobs:
   build:
@@ -21,47 +19,49 @@ jobs:
     - name: Verify run id
       run : echo Run Id $GITHUB_RUN_ID 
 
-    - name: Set main version
-      if: contains(github.ref, "master")
-      id: vars
-      run: |
-        version=$(git tag -l | sort -V | tail -1)
-        major=$(echo $version | grep -Eo "v[0-9]{1,}\." | sed -r "s/(v|\.)//g")
-        major=$(( major + 1 ))
-        minor='0'
-        hotfix='0'
-        new_version="v${major}.${minor}.${hotfix}"
-        echo "Old version: ${version}, new version ${new_version}"
-        echo ::set-output name=new_version::${new_version}
-
-    - name: Set develop version
-      if: contains(github.ref, "develop")
-      id: vars
-      run: |
-        version=$(git tag -l | sort -V | tail -1)
-        major=$(echo $version | grep -Eo "v[0-9]{1,}\." | sed -r "s/(v|\.)//g")
-        minor=$(echo $version | grep -Eo "\.[0-9]{1,}\." | sed "s/\.//g")
-        minor=$(( minor + 1 ))
-        hotfix='0'
-        new_version="v${major}.${minor}.${hotfix}"
-        echo "Old version: ${version}, new version ${new_version}"
-        echo ::set-output name=new_version::${new_version}
-
-    - name: Set hotfix version
-      if: contains(github.ref, "hotfix")
+    - name: Set new tag
       id: vars
       run: |
         version=$(git tag -l | sort -V | tail -1)
         major=$(echo $version | grep -Eo "v[0-9]{1,}\." | sed -r "s/(v|\.)//g")
         minor=$(echo $version | grep -Eo "\.[0-9]{1,}\." | sed "s/\.//g")
         hotfix=$(echo $version | grep -Eo "\.[0-9]{1,}$" | sed "s/\.//g")
-        hotfix=$(( hotfix + 1 ))
+        echo "version: ${version}, major: ${major}, minor: ${minor}, hotfix: ${hotfix}"
+        echo "git branch: ${GITHUB_REF##*/}" 
+        if [ "${GITHUB_REF##*/}" == "master" ]; then
+          major=$(( major + 1 ))
+          minor=0
+          hotfix=0
+        elif [ "${GITHUB_REF##*/}" == "develop" ]; then
+          minor=$(( minor + 1 ))
+          hotfix=0
+        elif $(echo "${GITHUB_REF}" | grep -q "hotfix"); then
+          hotfix=$(( hotfix + 1 ))
+        fi
         new_version="v${major}.${minor}.${hotfix}"
         echo "Old version: ${version}, new version ${new_version}"
         echo ::set-output name=new_version::${new_version}
 
-    - name: Create new tag
-      uses: tvdias/github-tagger@v0.0.1
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
-        tag: "${{ steps.vars.outputs.new_version }}"
+        #- name: Docker build and push
+        #  shell: bash
+        #  env: 
+        #    DH_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
+        #    DH_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
+        #  run: |
+        #    docker build -f ./Dockerfiles/pimusic_amd64.dockerfile -t ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version }} .
+        #    echo ${DH_TOKEN} | docker login --username ${DH_USERNAME} --password-stdin
+        #    docker push ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version }}
+        #    if [ "${GITHUB_REF##*/}" == "master" ]; then
+        #    docker tag ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version} ${DH_USERNAME}/pimusic_amd64:latest 
+        #      docker push ${DH_USERNAME}/pimusic_amd64:latest
+        #    elif [ "${GITHUB_REF##*/}" == "develop" ]; then
+        #      docker tag ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version} ${DH_USERNAME}/pimusic_amd64:develop 
+        #      docker push ${DH_USERNAME}/pimusic_amd64:develop
+        #    fi
+        #    
+
+        #- name: Create new tag
+        #  uses: tvdias/github-tagger@v0.0.1
+        #  with:
+        #    repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        #    tag: "${{ steps.vars.outputs.new_version }}"
