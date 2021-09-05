@@ -52,10 +52,10 @@ jobs:
         #    echo ${DH_TOKEN} | docker login --username ${DH_USERNAME} --password-stdin
         #    docker push ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version }}
         #    if [ "${GITHUB_REF##*/}" == "master" ]; then
-        #    docker tag ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version} ${DH_USERNAME}/pimusic_amd64:latest 
+        #    docker tag ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version }} ${DH_USERNAME}/pimusic_amd64:latest 
         #      docker push ${DH_USERNAME}/pimusic_amd64:latest
         #    elif [ "${GITHUB_REF##*/}" == "develop" ]; then
-        #      docker tag ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version} ${DH_USERNAME}/pimusic_amd64:develop 
+        #      docker tag ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version }} ${DH_USERNAME}/pimusic_amd64:develop 
         #      docker push ${DH_USERNAME}/pimusic_amd64:develop
         #    fi
         #    
