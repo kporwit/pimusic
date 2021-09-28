@@ -8,7 +8,7 @@ on:
       - develop
 
 jobs:
-  build:
+  build-amd64:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repo
@@ -24,4 +24,21 @@ jobs:
       env: 
         DH_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
       run: |
-        docker build -f ./Dockerfiles/pimusic_amd64.dockerfile -t ${DH_USERNAME}/pimusic:${GITHUB_REF##*/} .
+        docker build -f ./Dockerfiles/pimusic_amd64.dockerfile -t ${DH_USERNAME}/pimusic_amd64:${GITHUB_REF##*/} .
+  build-arm:
+    runs-on: [self-hosted, ARM]
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Verify run id
+      run : echo Run Id $GITHUB_RUN_ID 
+
+    - name: Docker build
+      shell: bash
+      env: 
+        DH_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
+      run: |
+        docker build -f ./Dockerfiles/pimusic_arm32v5.dockerfile -t ${DH_USERNAME}/pimusic:${GITHUB_REF##*/} .

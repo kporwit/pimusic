@@ -3,11 +3,11 @@ FROM arm32v5/debian AS imagemagick_builder
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y wget tar build-essential
-RUN wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz && \
-    tar xzfv ImageMagick.tar.gz && \
-    rm ImageMagick.tar.gz
+RUN wget https://download.imagemagick.org/ImageMagick/download/releases/ImageMagick-7.1.0-8.tar.gz && \
+    tar xzfv ImageMagick-7.1.0-8.tar.gz && \
+    rm ImageMagick-7.1.0-8.tar.gz
 RUN mkdir -p /root/imagemagick
-WORKDIR ImageMagick-7.1.0-6
+WORKDIR ImageMagick-7.1.0-8
 RUN ./configure --prefix=/root/imagemagick
 RUN make
 RUN make install
