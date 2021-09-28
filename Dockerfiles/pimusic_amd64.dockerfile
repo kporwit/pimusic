@@ -22,7 +22,7 @@ ARG PIHOMEDIR=/home/${PIUSER}
 #Uppgrade and install dependencies
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y wget unzip python3 python3-pip sqlite3 flac
+    apt-get install -y wget unzip python3 python3-pip sqlite3 flac ffmpeg
 RUN pip3 install CherryPy Unidecode
 #Add pimusic user and group, copy imagemagick and fix the links
 RUN addgroup --gid 8181 pimusicgroup && useradd -ms /bin/bash -G pimusicgroup ${PIUSER}
