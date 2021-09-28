@@ -11,6 +11,21 @@ WORKDIR ImageMagick-7.1.0-8
 RUN ./configure --prefix=/root/imagemagick
 RUN make
 RUN make install
+
+#Download and compile lame from source
+FROM arm32v5/debian AS lame_builder
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y wget tar build-essential
+RUN wget https://sourceforge.net/projects/lame/files/lame/3.100/lame-3.100.tar.gz && \
+    tar xzfv lame-3.100.tar.gz && \
+    rm lame-3.100.tar.gz
+RUN mkdir -p /root/lame
+WORKDIR lame-3.100
+RUN ./configure --prefix=/root/lame
+RUN make
+RUN make install
+
 #Pimusic builder
 FROM arm32v5/debian AS pimusic_builder
 #Set up variables
@@ -24,14 +39,16 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y wget unzip python3 python3-pip sqlite3 flac ffmpeg
 RUN pip3 install CherryPy Unidecode
-#Add pimusic user and group, copy imagemagick and fix the links
+#Add pimusic user and group, copy imagemagick, lame and fix the links
 RUN addgroup --gid 8181 pimusicgroup && useradd -ms /bin/bash -G pimusicgroup ${PIUSER}
 COPY --from=imagemagick_builder /root/imagemagick ${PIHOMEDIR}/imagemagick
 RUN ldconfig /home/pimusic/imagemagick/lib
-#Work as a pimusic user, add imagemagick path to the PATH env variable
+COPY --from=lame_builder /root/lame ${PIHOMEDIR}/lame
+RUN ldconfig /home/pimusic/lame/lib
+#Work as a pimusic user, add imagemagick, lame path to the PATH env variable
 USER ${PIUSER}
 WORKDIR ${PIHOMEDIR}
-ENV PATH="$PATH:/home/pimusic/imagemagick/bin/"
+ENV PATH="$PATH:/home/pimusic/imagemagick/bin/:/home/pimusic/lame/bin/"
 #Download cherrymusic
 RUN wget https://github.com/devsnd/cherrymusic/archive/refs/heads/devel.zip && \
     unzip devel.zip && \
