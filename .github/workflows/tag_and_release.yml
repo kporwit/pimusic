@@ -121,7 +121,7 @@ jobs:
 
   create-tag:
     runs-on: ubuntu-latest
-    needs: [build-amd64, build-arm]
+    needs: [build-amd64, build-arm32]
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2
