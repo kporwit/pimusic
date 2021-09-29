@@ -1,0 +1,4 @@
+#base_image values will be substituted where __BASE_IMAGE__ placeholder occurs
+base_image:
+  amd64: debian
+  arm32: arm32v5/debian
