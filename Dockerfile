@@ -1,26 +1,21 @@
-#Download and compile imagemagick from source
-FROM __BASE_IMAGE__ AS imagemagick_builder
+#Download and compile dependencies from source
+FROM __BASE_IMAGE__ AS dependencies_builder
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y wget tar build-essential
+RUN mkdir -p /root/imagemagick /root/lame
 RUN wget https://download.imagemagick.org/ImageMagick/download/releases/ImageMagick-7.1.0-8.tar.gz && \
     tar xzfv ImageMagick-7.1.0-8.tar.gz && \
     rm ImageMagick-7.1.0-8.tar.gz
-RUN mkdir -p /root/imagemagick
 WORKDIR ImageMagick-7.1.0-8
 RUN ./configure --prefix=/root/imagemagick
 RUN make
 RUN make install
-
 #Download and compile lame from source
-FROM __BASE_IMAGE__ AS lame_builder
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y wget tar build-essential
+WORKDIR /root
 RUN wget https://sourceforge.net/projects/lame/files/lame/3.100/lame-3.100.tar.gz && \
     tar xzfv lame-3.100.tar.gz && \
     rm lame-3.100.tar.gz
-RUN mkdir -p /root/lame
 WORKDIR lame-3.100
 RUN ./configure --prefix=/root/lame
 RUN make
@@ -37,13 +32,13 @@ ARG PIHOMEDIR=/home/${PIUSER}
 #Uppgrade and install dependencies
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y wget unzip python3 python3-pip sqlite3 ffmpeg
+    apt-get install -y wget unzip python3 python3-pip sqlite3 flac ffmpeg
 RUN pip3 install CherryPy Unidecode
 #Add pimusic user and group, copy imagemagick, lame and fix the links
 RUN addgroup --gid 8181 pimusicgroup && useradd -ms /bin/bash -G pimusicgroup ${PIUSER}
-COPY --from=imagemagick_builder /root/imagemagick ${PIHOMEDIR}/imagemagick
+COPY --from=dependencies_builder /root/imagemagick ${PIHOMEDIR}/imagemagick
 RUN ldconfig /home/pimusic/imagemagick/lib
-COPY --from=lame_builder /root/lame ${PIHOMEDIR}/lame
+COPY --from=dependencies_builder /root/lame ${PIHOMEDIR}/lame
 RUN ldconfig /home/pimusic/lame/lib
 #Work as a pimusic user, add imagemagick, lame path to the PATH env variable
 USER ${PIUSER}
