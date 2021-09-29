@@ -40,6 +40,11 @@ jobs:
         echo "Old version: ${version}, new version ${new_version}"
         echo ::set-output name=new_version::${new_version}
 
+    - name: Prepare Dockerfile from template
+      shell: bash
+      run : |
+        ./prepare_dockerfile.sh -a amd64 -c ./config.yaml -d ./Dockerfile -v
+
     - name: Docker build and push
       shell: bash
       env: 
@@ -47,7 +52,7 @@ jobs:
         DH_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
       run: |
         echo ${DH_TOKEN} | docker login --username ${DH_USERNAME} --password-stdin
-        docker build -f ./Dockerfiles/pimusic_amd64.dockerfile -t ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version }} .
+        docker build -f ./Dockerfile -t ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version }} .
         docker push ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version }}
         if [ "${GITHUB_REF##*/}" == "master" ]; then
           echo "Tagging as latest"
@@ -59,7 +64,7 @@ jobs:
           docker push ${DH_USERNAME}/pimusic_amd64:develop
         fi
 
-  build-arm:
+  build-arm32:
     runs-on: [self-hosted, ARM]
     steps:
     - name: Checkout repo
@@ -90,6 +95,11 @@ jobs:
         echo "Old version: ${version}, new version ${new_version}"
         echo ::set-output name=new_version::${new_version}
 
+    - name: Prepare Dockerfile from template
+      shell: bash
+      run : |
+        ./prepare_dockerfile.sh -a arm32 -c ./config.yaml -d ./Dockerfile -v
+
     - name: Docker build and push
       shell: bash
       env: 
@@ -97,7 +107,7 @@ jobs:
         DH_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
       run: |
         echo ${DH_TOKEN} | docker login --username ${DH_USERNAME} --password-stdin
-        docker build -f ./Dockerfiles/pimusic_arm32v5.dockerfile -t ${DH_USERNAME}/pimusic:${{ steps.vars.outputs.new_version }} .
+        docker build -f ./Dockerfile -t ${DH_USERNAME}/pimusic:${{ steps.vars.outputs.new_version }} .
         docker push ${DH_USERNAME}/pimusic:${{ steps.vars.outputs.new_version }}
         if [ "${GITHUB_REF##*/}" == "master" ]; then
           echo "Tagging as latest"
