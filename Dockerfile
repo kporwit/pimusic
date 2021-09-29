@@ -7,16 +7,16 @@ RUN mkdir -p /root/imagemagick /root/lame
 RUN wget https://download.imagemagick.org/ImageMagick/download/releases/ImageMagick-7.1.0-8.tar.gz && \
     tar xzfv ImageMagick-7.1.0-8.tar.gz && \
     rm ImageMagick-7.1.0-8.tar.gz
-WORKDIR ImageMagick-7.1.0-8
-RUN ./configure --prefix=/root/imagemagick
-RUN make
-RUN make install
-#Download and compile lame from source
-WORKDIR /root
 RUN wget https://sourceforge.net/projects/lame/files/lame/3.100/lame-3.100.tar.gz && \
     tar xzfv lame-3.100.tar.gz && \
     rm lame-3.100.tar.gz
-WORKDIR lame-3.100
+#Compile ImageMagick dependency
+WORKDIR /ImageMagick-7.1.0-8
+RUN ./configure --prefix=/root/imagemagick
+RUN make
+RUN make install
+#Compile Lame dependency
+WORKDIR /lame-3.100
 RUN ./configure --prefix=/root/lame
 RUN make
 RUN make install
