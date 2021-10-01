@@ -28,16 +28,16 @@ jobs:
           echo "PR from devops branch detected. Not running validation."
           run_validation=false
         fi
-        echo ::set-output name=set_tag::${set_tag}
+        echo ::set-output name=run_validation::${run_validation}
 
     - name: Prepare Dockerfile from template
-      if: ${{ steps.vars.output.run_validation == true }}
+      if: steps.vars.outputs.run_validation
       shell: bash
       run : |
         ./prepare_dockerfile.sh -a amd64 -c ./config.yaml -d ./Dockerfile -v
 
     - name: Docker build
-      if: ${{ steps.vars.output.run_validation == true }}
+      if: steps.vars.outputs.run_validation
       shell: bash
       env: 
         DH_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
@@ -53,23 +53,26 @@ jobs:
         fetch-depth: 0
 
     - name: Check head branch
+      id: vars
       shell: bash
       run: |
         echo "git head branch: ${GITHUB_HEAD_REF}" 
         echo "git target branch: ${GITHUB_BASE_REF}" 
+        run_validation=true
         if $(echo "${GITHUB_HEAD_REF}" | grep -q "devops/"); then
           echo "PR from devops branch detected. Not running validation."
           run_validation=false
         fi
+        echo ::set-output name=run_validation::${run_validation}
 
     - name: Prepare Dockerfile from template
-      if: ${{ steps.vars.output.run_validation == true }}
+      if: steps.vars.outputs.run_validation
       shell: bash
       run : |
         ./prepare_dockerfile.sh -a arm32 -c ./config.yaml -d ./Dockerfile -v
 
     - name: Docker build
-      if: ${{ steps.vars.output.run_validation == true }}
+      if: steps.vars.outputs.run_validation
       shell: bash
       env: 
         DH_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
