@@ -1,12 +1,16 @@
 # pimusic
-Container with [cherrymusic](https://github.com/devsnd/cherrymusic) for ARM architecture processor. It works out of the box in the raspberry pi 2B. Docker image is published on DockerHub at [kporwit/pimusic](https://hub.docker.com/repository/docker/kporwit/pimusic).
+Docker container with [cherrymusic](https://github.com/devsnd/cherrymusic) for ARM (armv[5-7]) and AMD64 (x86_64) architecture processor. It works out of the box in the raspberry pi 2B. Docker image is published on DockerHub at [kporwit/pimusic](https://hub.docker.com/repository/docker/kporwit/pimusic) for ARM architecture and [kporwit/pimusic_amd64](https://hub.docker.com/repository/kporwit/pimusic_amd64) for AMD64 architecture.
+
+# Prerequisites
+ 1. docker - check [this page](https://docs.docker.com/engine/install/) for installation and setup instructions.
+ 2. wget or git.
 
 # Quickstart:
 
 1. Download `wget https://github.com/kporwit/pimusic/archive/refs/heads/master.zip` or clone the repository `git clone https://github.com/kporwit/pimusic.git`.
 2. If necessary unzip the downloaded zip file `unzip https://github.com/kporwit/pimusic/archive/refs/heads/master.zip` and enter pimusic path `cd ./pimusic`.
 3. Run `./run_pimusic.sh -P /path/to/Your/music/`.
-4. Check website `pi-IP:8181` for pimusic initial setup.
+4. Check website `<Your pi IP address or localhost>:8181` for Your own cherrymusic server!.
 
 
 # Usage: 
@@ -79,7 +83,10 @@ To solve this problem and start pimusic container normally You need to remove `c
 Docker volumes are usually located at `/var/lib/docker/volumes` and in this case You need to run command: `sudo rm -v /var/lib/docker/volumes/pimusic_share_vol/_data/share/cherrymusic/cherrymusic.pid` which will solve the problem of existing lockfile.
 
 # ToDo
+
 - [x] Add Imagemagick
 - [x] HTTPS support
-- [ ] Add optional dependencies: live transcoding, python-unidecode, python-gobject
+- [x] Add optional dependencies: live transcoding, python-unidecode, python-gobject
 - [ ] Try to make the image thinner
+
+For full scope of the tasks look for the pimusic project in Projects.
