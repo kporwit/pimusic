@@ -1,7 +1,8 @@
 name: Tag pimusic version
 
 on:
-  push:
+  pull_request:
+    types: [ closed ]
     branches:
       - main
       - master
@@ -10,6 +11,7 @@ on:
 jobs:
 
   build-amd64:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repo
@@ -25,27 +27,35 @@ jobs:
         minor=$(echo $version | grep -Eo "\.[0-9]{1,}\." | sed "s/\.//g")
         hotfix=$(echo $version | grep -Eo "\.[0-9]{1,}$" | sed "s/\.//g")
         echo "version: ${version}, major: ${major}, minor: ${minor}, hotfix: ${hotfix}"
-        echo "git branch: ${GITHUB_REF##*/}" 
-        if [ "${GITHUB_REF##*/}" == "master" ]; then
+        echo "git head branch: ${GITHUB_HEAD_REF}" 
+        echo "git target branch: ${GITHUB_BASE_REF}" 
+        set_tag=true
+        if $(echo "${GITHUB_HEAD_REF}" | grep -q "devops/"); then
+          echo "Merge from devops branch detected. Not setting any tag."
+          set_tag=false
+        elif [ "${GITHUB_BASE_REF##*/}" == "master" ]; then
           major=$(( major + 1 ))
           minor=0
           hotfix=0
-        elif [ "${GITHUB_REF##*/}" == "develop" ]; then
+        elif [ "${GITHUB_BASE_REF##*/}" == "develop" ]; then
           minor=$(( minor + 1 ))
           hotfix=0
-        elif $(echo "${GITHUB_REF}" | grep -q "hotfix"); then
+        elif $(echo "${GITHUB_BASE_REF##*/}" | grep -q "hotfix"); then
           hotfix=$(( hotfix + 1 ))
         fi
         new_version="v${major}.${minor}.${hotfix}"
         echo "Old version: ${version}, new version ${new_version}"
         echo ::set-output name=new_version::${new_version}
+        echo ::set-output name=set_tag::${set_tag}
 
     - name: Prepare Dockerfile from template
+      if: ${{ steps.vars.output.set_tag == true }}
       shell: bash
       run : |
         ./prepare_dockerfile.sh -a amd64 -c ./config.yaml -d ./Dockerfile -v
 
     - name: Docker build and push
+      if: ${{ steps.vars.output.set_tag == true }}
       shell: bash
       env: 
         DH_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
@@ -54,20 +64,21 @@ jobs:
         echo ${DH_TOKEN} | docker login --username ${DH_USERNAME} --password-stdin
         docker build -f ./Dockerfile -t ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version }} .
         docker push ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version }}
-        if [ "${GITHUB_REF##*/}" == "master" ]; then
+        if [ "${GITHUB_BASE_REF##*/}" == "master" ]; then
           echo "Tagging as latest"
           docker tag ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version }} ${DH_USERNAME}/pimusic_amd64:latest 
           docker push ${DH_USERNAME}/pimusic_amd64:latest
-        elif [ "${GITHUB_REF##*/}" == "develop" ]; then
+        elif [ "${GITHUB_BASE_REF##*/}" == "develop" ]; then
           echo "Tagging as develop"
           docker tag ${DH_USERNAME}/pimusic_amd64:${{ steps.vars.outputs.new_version }} ${DH_USERNAME}/pimusic_amd64:develop 
           docker push ${DH_USERNAME}/pimusic_amd64:develop
         fi
 
   build-arm32:
+    if: github.event.pull_request.merged == true
     runs-on: [self-hosted, ARM]
     steps:
-    - name: Checkout repo
+    - name: Checkout repo 
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
@@ -80,15 +91,20 @@ jobs:
         minor=$(echo $version | grep -Eo "\.[0-9]{1,}\." | sed "s/\.//g")
         hotfix=$(echo $version | grep -Eo "\.[0-9]{1,}$" | sed "s/\.//g")
         echo "version: ${version}, major: ${major}, minor: ${minor}, hotfix: ${hotfix}"
-        echo "git branch: ${GITHUB_REF##*/}" 
-        if [ "${GITHUB_REF##*/}" == "master" ]; then
+        echo "git head branch: ${GITHUB_HEAD_REF}" 
+        echo "git target branch: ${GITHUB_BASE_REF}" 
+        set_tag=true
+        if $(echo "${GITHUB_HEAD_REF}" | grep -q "devops/"); then
+          echo "Merge from devops branch detected. Not setting any tag."
+          set_tag=false
+        elif [ "${GITHUB_BASE_REF##*/}" == "master" ]; then
           major=$(( major + 1 ))
           minor=0
           hotfix=0
-        elif [ "${GITHUB_REF##*/}" == "develop" ]; then
+        elif [ "${GITHUB_BASE_REF##*/}" == "develop" ]; then
           minor=$(( minor + 1 ))
           hotfix=0
-        elif $(echo "${GITHUB_REF}" | grep -q "hotfix"); then
+        elif $(echo "${GITHUB_BASE_REF}" | grep -q "hotfix"); then
           hotfix=$(( hotfix + 1 ))
         fi
         new_version="v${major}.${minor}.${hotfix}"
@@ -96,11 +112,13 @@ jobs:
         echo ::set-output name=new_version::${new_version}
 
     - name: Prepare Dockerfile from template
+      if: ${{ steps.vars.output.set_tag == true }}
       shell: bash
       run : |
         ./prepare_dockerfile.sh -a arm32 -c ./config.yaml -d ./Dockerfile -v
 
     - name: Docker build and push
+      if: ${{ steps.vars.output.set_tag == true }}
       shell: bash
       env: 
         DH_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
@@ -109,11 +127,11 @@ jobs:
         echo ${DH_TOKEN} | docker login --username ${DH_USERNAME} --password-stdin
         docker build -f ./Dockerfile -t ${DH_USERNAME}/pimusic:${{ steps.vars.outputs.new_version }} .
         docker push ${DH_USERNAME}/pimusic:${{ steps.vars.outputs.new_version }}
-        if [ "${GITHUB_REF##*/}" == "master" ]; then
+        if [ "${GITHUB_BASE_REF##*/}" == "master" ]; then
           echo "Tagging as latest"
           docker tag ${DH_USERNAME}/pimusic:${{ steps.vars.outputs.new_version }} ${DH_USERNAME}/pimusic:latest 
           docker push ${DH_USERNAME}/pimusic:latest
-        elif [ "${GITHUB_REF##*/}" == "develop" ]; then
+        elif [ "${GITHUB_BASE_REF##*/}" == "develop" ]; then
           echo "Tagging as develop"
           docker tag ${DH_USERNAME}/pimusic:${{ steps.vars.outputs.new_version }} ${DH_USERNAME}/pimusic:develop 
           docker push ${DH_USERNAME}/pimusic:develop
@@ -136,21 +154,27 @@ jobs:
         minor=$(echo $version | grep -Eo "\.[0-9]{1,}\." | sed "s/\.//g")
         hotfix=$(echo $version | grep -Eo "\.[0-9]{1,}$" | sed "s/\.//g")
         echo "version: ${version}, major: ${major}, minor: ${minor}, hotfix: ${hotfix}"
-        echo "git branch: ${GITHUB_REF##*/}" 
-        if [ "${GITHUB_REF##*/}" == "master" ]; then
+        echo "git head branch: ${GITHUB_HEAD_REF}" 
+        echo "git target branch: ${GITHUB_BASE_REF}" 
+        set_tag=true
+        if $(echo "${GITHUB_HEAD_REF}" | grep -q "devops/"); then
+          echo "Merge from devops branch detected. Not setting any tag."
+          set_tag=false
+        elif [ "${GITHUB_BASE_REF##*/}" == "master" ]; then
           major=$(( major + 1 ))
           minor=0
           hotfix=0
-        elif [ "${GITHUB_REF##*/}" == "develop" ]; then
+        elif [ "${GITHUB_BASE_REF##*/}" == "develop" ]; then
           minor=$(( minor + 1 ))
           hotfix=0
-        elif $(echo "${GITHUB_REF}" | grep -q "hotfix"); then
+        elif $(echo "${GITHUB_BASE_REF}" | grep -q "hotfix"); then
           hotfix=$(( hotfix + 1 ))
         fi
         new_version="v${major}.${minor}.${hotfix}"
         echo "Old version: ${version}, new version ${new_version}"
         echo ::set-output name=new_version::${new_version}
     - name: Create new tag
+      if: ${{ steps.vars.output.set_tag == true }}
       uses: tvdias/github-tagger@v0.0.1
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"

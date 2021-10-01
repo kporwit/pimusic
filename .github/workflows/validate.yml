@@ -8,6 +8,7 @@ on:
       - develop
 
 jobs:
+
   build-amd64:
     runs-on: ubuntu-latest
     steps:
@@ -16,17 +17,33 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Check head branch
+      id: vars
+      shell: bash
+      run: |
+        run_validation=true
+        echo "git head branch: ${GITHUB_HEAD_REF}" 
+        echo "git target branch: ${GITHUB_BASE_REF}" 
+        if $(echo "${GITHUB_HEAD_REF}" | grep -q "devops/"); then
+          echo "PR from devops branch detected. Not running validation."
+          run_validation=false
+        fi
+        echo ::set-output name=set_tag::${set_tag}
+
     - name: Prepare Dockerfile from template
+      if: ${{ steps.vars.output.run_validation == true }}
       shell: bash
       run : |
         ./prepare_dockerfile.sh -a amd64 -c ./config.yaml -d ./Dockerfile -v
 
     - name: Docker build
+      if: ${{ steps.vars.output.run_validation == true }}
       shell: bash
       env: 
         DH_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
       run: |
         docker build -f ./Dockerfile -t ${DH_USERNAME}/pimusic_amd64:${GITHUB_REF##*/} .
+
   build-arm32:
     runs-on: [self-hosted, ARM]
     steps:
@@ -35,12 +52,24 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Check head branch
+      shell: bash
+      run: |
+        echo "git head branch: ${GITHUB_HEAD_REF}" 
+        echo "git target branch: ${GITHUB_BASE_REF}" 
+        if $(echo "${GITHUB_HEAD_REF}" | grep -q "devops/"); then
+          echo "PR from devops branch detected. Not running validation."
+          run_validation=false
+        fi
+
     - name: Prepare Dockerfile from template
+      if: ${{ steps.vars.output.run_validation == true }}
       shell: bash
       run : |
         ./prepare_dockerfile.sh -a arm32 -c ./config.yaml -d ./Dockerfile -v
 
     - name: Docker build
+      if: ${{ steps.vars.output.run_validation == true }}
       shell: bash
       env: 
         DH_USERNAME: ${{ secrets.DOCKERHUB_LOGIN }}
