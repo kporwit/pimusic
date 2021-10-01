@@ -33,15 +33,17 @@ jobs:
         if $(echo "${GITHUB_HEAD_REF}" | grep -q "devops/"); then
           echo "Merge from devops branch detected. Not setting any tag."
           set_tag=false
-        elif [ "${GITHUB_BASE_REF##*/}" == "master" ]; then
-          major=$(( major + 1 ))
-          minor=0
-          hotfix=0
-        elif [ "${GITHUB_BASE_REF##*/}" == "develop" ]; then
-          minor=$(( minor + 1 ))
-          hotfix=0
-        elif $(echo "${GITHUB_BASE_REF##*/}" | grep -q "hotfix"); then
-          hotfix=$(( hotfix + 1 ))
+        else
+          if $(echo "${GITHUB_HEAD_REF}" | grep -q "hotfix/"); then
+            hotfix=$(( hotfix + 1 ))
+          elif [ "${GITHUB_BASE_REF##*/}" == "master" ]; then
+            major=$(( major + 1 ))
+            minor=0
+            hotfix=0
+          elif [ "${GITHUB_BASE_REF##*/}" == "develop" ]; then
+            minor=$(( minor + 1 ))
+            hotfix=0
+          fi
         fi
         new_version="v${major}.${minor}.${hotfix}"
         echo "Old version: ${version}, new version ${new_version}"
@@ -97,15 +99,17 @@ jobs:
         if $(echo "${GITHUB_HEAD_REF}" | grep -q "devops/"); then
           echo "Merge from devops branch detected. Not setting any tag."
           set_tag=false
-        elif [ "${GITHUB_BASE_REF##*/}" == "master" ]; then
-          major=$(( major + 1 ))
-          minor=0
-          hotfix=0
-        elif [ "${GITHUB_BASE_REF##*/}" == "develop" ]; then
-          minor=$(( minor + 1 ))
-          hotfix=0
-        elif $(echo "${GITHUB_BASE_REF}" | grep -q "hotfix"); then
-          hotfix=$(( hotfix + 1 ))
+        else
+          if $(echo "${GITHUB_HEAD_REF}" | grep -q "hotfix/"); then
+            hotfix=$(( hotfix + 1 ))
+          elif [ "${GITHUB_BASE_REF##*/}" == "master" ]; then
+            major=$(( major + 1 ))
+            minor=0
+            hotfix=0
+          elif [ "${GITHUB_BASE_REF##*/}" == "develop" ]; then
+            minor=$(( minor + 1 ))
+            hotfix=0
+          fi
         fi
         new_version="v${major}.${minor}.${hotfix}"
         echo "Old version: ${version}, new version ${new_version}"
@@ -160,15 +164,17 @@ jobs:
         if $(echo "${GITHUB_HEAD_REF}" | grep -q "devops/"); then
           echo "Merge from devops branch detected. Not setting any tag."
           set_tag=false
-        elif [ "${GITHUB_BASE_REF##*/}" == "master" ]; then
-          major=$(( major + 1 ))
-          minor=0
-          hotfix=0
-        elif [ "${GITHUB_BASE_REF##*/}" == "develop" ]; then
-          minor=$(( minor + 1 ))
-          hotfix=0
-        elif $(echo "${GITHUB_BASE_REF}" | grep -q "hotfix"); then
-          hotfix=$(( hotfix + 1 ))
+        else
+          if $(echo "${GITHUB_HEAD_REF}" | grep -q "hotfix/"); then
+            hotfix=$(( hotfix + 1 ))
+          elif [ "${GITHUB_BASE_REF##*/}" == "master" ]; then
+            major=$(( major + 1 ))
+            minor=0
+            hotfix=0
+          elif [ "${GITHUB_BASE_REF##*/}" == "develop" ]; then
+            minor=$(( minor + 1 ))
+            hotfix=0
+          fi
         fi
         new_version="v${major}.${minor}.${hotfix}"
         echo "Old version: ${version}, new version ${new_version}"
