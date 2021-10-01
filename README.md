@@ -83,7 +83,10 @@ To solve this problem and start pimusic container normally You need to remove `c
 Docker volumes are usually located at `/var/lib/docker/volumes` and in this case You need to run command: `sudo rm -v /var/lib/docker/volumes/pimusic_share_vol/_data/share/cherrymusic/cherrymusic.pid` which will solve the problem of existing lockfile.
 
 # ToDo
+
 - [x] Add Imagemagick
 - [x] HTTPS support
-- [ ] Add optional dependencies: live transcoding, python-unidecode, python-gobject
+- [x] Add optional dependencies: live transcoding, python-unidecode, python-gobject
 - [ ] Try to make the image thinner
+
+For full scope of the tasks look for the pimusic project in Projects.
