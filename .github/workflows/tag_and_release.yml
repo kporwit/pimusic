@@ -78,7 +78,8 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: [self-hosted, ARM]
     steps:
-    - name: Checkout repo uses: actions/checkout@v2
+    - name: Checkout repo 
+      uses: actions/checkout@v2
       with:
         fetch-depth: 0
 
