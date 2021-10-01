@@ -114,6 +114,7 @@ jobs:
         new_version="v${major}.${minor}.${hotfix}"
         echo "Old version: ${version}, new version ${new_version}"
         echo ::set-output name=new_version::${new_version}
+        echo ::set-output name=set_tag::${set_tag}
 
     - name: Prepare Dockerfile from template
       if: steps.vars.outputs.set_tag
@@ -179,6 +180,8 @@ jobs:
         new_version="v${major}.${minor}.${hotfix}"
         echo "Old version: ${version}, new version ${new_version}"
         echo ::set-output name=new_version::${new_version}
+        echo ::set-output name=set_tag::${set_tag}
+
     - name: Create new tag
       if: steps.vars.outputs.set_tag
       uses: tvdias/github-tagger@v0.0.1
