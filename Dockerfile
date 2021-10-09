@@ -1,5 +1,6 @@
 #Download and compile dependencies from source
 FROM __BASE_IMAGE__ AS dependencies_builder
+RUN rm -rf /etc/apt/trusted.gpg.d/*
 RUN apt-get clean && \
     apt-get update && \
     apt-get upgrade -y && \
@@ -31,6 +32,7 @@ ENV SSL_PORT=8443
 ARG PIUSER=pimusic
 ARG PIHOMEDIR=/home/${PIUSER}
 #Uppgrade and install dependencies
+RUN rm -rf /etc/apt/trusted.gpg.d/*
 RUN apt-get clean && \
     apt-get update && \
     apt-get upgrade -y && \
