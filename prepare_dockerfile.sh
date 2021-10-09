@@ -53,11 +53,11 @@ while read LINE; do
     continue
   fi
   if echo $LINE | grep -Eq "^[[:space:]]+$ARCH"; then
-    CONFIG_VALUE=$(echo $LINE | grep -Eo ":[[:space:]]*.+$" | tr -d "[:blank:],:")
+    CONFIG_VALUE=$(echo $LINE | grep -Eo ":[[:space:]]+.+$" | tr -d "[:blank:]" | sed "s/^://")
     if [ "$VERBOSE" == "TRUE" ]; then
       printf "Substituting \"%s\" with \"%s\" in: %s\n" "$CONFIG_FIELD" "$CONFIG_VALUE" "$DOCKERFILE_PATH"
     fi
-    if ! sed -i "s:$CONFIG_FIELD:$CONFIG_VALUE:g" $DOCKERFILE_PATH; then
+    if ! sed -i "s;$CONFIG_FIELD;$CONFIG_VALUE;g" $DOCKERFILE_PATH; then
       printf "ERROR: something went wrong with substitution.\n"
       exit 2
     fi
