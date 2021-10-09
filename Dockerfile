@@ -1,6 +1,8 @@
 #Download and compile dependencies from source
 FROM __BASE_IMAGE__ AS dependencies_builder
 RUN rm -rf /etc/apt/trusted.gpg.d/*
+RUN gpg --keyserver subkeys.pgp.net --recv-keys 55BE302B && \
+    gpg -a --export 55BE302B | apt-key add -
 RUN apt-get clean && \
     apt-get update && \
     apt-get upgrade -y && \
@@ -33,6 +35,8 @@ ARG PIUSER=pimusic
 ARG PIHOMEDIR=/home/${PIUSER}
 #Uppgrade and install dependencies
 RUN rm -rf /etc/apt/trusted.gpg.d/*
+RUN gpg --keyserver subkeys.pgp.net --recv-keys 55BE302B && \
+    gpg -a --export 55BE302B | apt-key add -
 RUN apt-get clean && \
     apt-get update && \
     apt-get upgrade -y && \
