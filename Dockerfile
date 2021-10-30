@@ -1,7 +1,6 @@
 #Download and compile dependencies from source
 FROM __BASE_IMAGE__ AS dependencies_builder
-RUN apt-get clean && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y wget tar build-essential
 RUN mkdir -p /root/imagemagick /root/lame
@@ -31,8 +30,7 @@ ENV SSL_PORT=8443
 ARG PIUSER=pimusic
 ARG PIHOMEDIR=/home/${PIUSER}
 #Uppgrade and install dependencies
-RUN apt-get clean && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y wget unzip python3 python3-pip sqlite3 flac ffmpeg
 RUN pip3 install CherryPy Unidecode
