@@ -58,6 +58,12 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Clean docker repository
+      shell: bash
+      run: |
+        docker container prune -f --filter "until=336h"
+        docker image prune -f --filter "until=336h"
+
     - name: Check tag
       id: vars
       run: |
