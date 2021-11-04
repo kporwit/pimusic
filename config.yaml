@@ -1,4 +1,4 @@
 #base_image values will be substituted where __BASE_IMAGE__ placeholder occurs
 base_image:
-  amd64: debian:latest
-  arm32: arm32v5/debian:10.11
+  amd64: debian:latest-slim
+  arm32: arm32v5/debian:10.11-slim
