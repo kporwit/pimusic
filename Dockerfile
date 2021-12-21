@@ -5,9 +5,9 @@ RUN apt-get update && \
     #apt-get install --no-install-recommends -y wget tar build-essential && \
     apt-get install -y wget tar build-essential && \
     mkdir -p /root/imagemagick /root/lame
-RUN wget https://download.imagemagick.org/ImageMagick/download/releases/ImageMagick-7.1.0-8.tar.gz && \
-    tar xzfv ImageMagick-7.1.0-8.tar.gz && \
-    rm ImageMagick-7.1.0-8.tar.gz && \
+RUN wget https://download.imagemagick.org/ImageMagick/download/releases/ImageMagick-7.1.0-8.tar.xz && \
+    tar xvf ImageMagick-7.1.0-8.tar.xz && \
+    rm ImageMagick-7.1.0-8.tar.xz && \
     wget https://sourceforge.net/projects/lame/files/lame/3.100/lame-3.100.tar.gz && \
     tar xzfv lame-3.100.tar.gz && \
     rm lame-3.100.tar.gz && \
