@@ -2,7 +2,6 @@
 FROM __BASE_IMAGE__ AS dependencies_builder
 RUN apt-get update && \
     apt-get upgrade -y && \
-    #apt-get install --no-install-recommends -y wget tar build-essential && \
     apt-get install -y wget tar build-essential && \
     mkdir -p /root/imagemagick /root/lame
 RUN wget https://download.imagemagick.org/ImageMagick/download/releases/ImageMagick-7.1.0-8.tar.xz && \
